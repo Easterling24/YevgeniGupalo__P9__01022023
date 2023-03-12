@@ -15,30 +15,76 @@ export default class NewBill {
     this.billId = null
     new Logout({ document, localStorage, onNavigate })
   }
+
+
+  // handleChangeFile = e => {
+  //   e.preventDefault()
+  //   const file = this.document.querySelector(`input[data-testid="file"]`).files[0]
+  //   const filePath = e.target.value.split(/\\/g)
+  //   const fileName = filePath[filePath.length-1]
+
+  //   const fileExtension = fileName.split('.').pop()
+  //   const formData = new FormData()
+  //   const email = JSON.parse(localStorage.getItem("user")).email
+  //   formData.append('file', file)
+  //   formData.append('email', email)
+
+  //   this.store
+  //     .bills()
+  //     .create({
+  //       data: formData,
+  //       headers: {
+  //         noContentType: true
+  //       }
+  //     })
+  //     .then(({fileUrl, key}) => {
+  //       console.log(fileUrl)
+  //       this.billId = key
+  //       this.fileUrl = fileUrl
+  //       this.fileName = fileName
+  //     }).catch(error => console.error(error))
+  // }
+
   handleChangeFile = e => {
-    e.preventDefault()
+    document.querySelector(".error-extensionFile").style.display = "none"
     const file = this.document.querySelector(`input[data-testid="file"]`).files[0]
     const filePath = e.target.value.split(/\\/g)
-    const fileName = filePath[filePath.length-1]
-    const formData = new FormData()
-    const email = JSON.parse(localStorage.getItem("user")).email
-    formData.append('file', file)
-    formData.append('email', email)
+    const fileName = filePath[filePath.length - 1]
+    // get file extension
+    const fileExtension = fileName.split(".").pop()
 
-    this.store
-      .bills()
-      .create({
-        data: formData,
-        headers: {
-          noContentType: true
-        }
-      })
-      .then(({fileUrl, key}) => {
-        console.log(fileUrl)
-        this.billId = key
-        this.fileUrl = fileUrl
-        this.fileName = fileName
-      }).catch(error => console.error(error))
+    // check if file extension is an image
+    if (['jpg', 'jpeg', 'png'].includes(fileExtension)) {
+
+      const formData = new FormData()
+      const email = JSON.parse(localStorage.getItem("user")).email
+      formData.append('file', file)
+      formData.append('email', email)
+
+      this.store
+        .bills()
+        .create({
+          data: formData,
+          headers: {
+            noContentType: true
+          }
+        })
+        .then(({ fileUrl, key }) => {
+          console.log(fileUrl)
+          this.billId = key
+          this.fileUrl = fileUrl
+          this.fileName = fileName
+        }).catch(error => console.error(error))
+
+
+
+
+    } else {
+      console.log('bad extension')
+      // show error-message
+      document.querySelector(".error-extensionFile").style.display = "block"
+      document.querySelector(`input[data-testid="file"]`).value = null
+    }
   }
   handleSubmit = e => {
     e.preventDefault()
@@ -47,9 +93,9 @@ export default class NewBill {
     const bill = {
       email,
       type: e.target.querySelector(`select[data-testid="expense-type"]`).value,
-      name:  e.target.querySelector(`input[data-testid="expense-name"]`).value,
+      name: e.target.querySelector(`input[data-testid="expense-name"]`).value,
       amount: parseInt(e.target.querySelector(`input[data-testid="amount"]`).value),
-      date:  e.target.querySelector(`input[data-testid="datepicker"]`).value,
+      date: e.target.querySelector(`input[data-testid="datepicker"]`).value,
       vat: e.target.querySelector(`input[data-testid="vat"]`).value,
       pct: parseInt(e.target.querySelector(`input[data-testid="pct"]`).value) || 20,
       commentary: e.target.querySelector(`textarea[data-testid="commentary"]`).value,
@@ -65,12 +111,12 @@ export default class NewBill {
   updateBill = (bill) => {
     if (this.store) {
       this.store
-      .bills()
-      .update({data: JSON.stringify(bill), selector: this.billId})
-      .then(() => {
-        this.onNavigate(ROUTES_PATH['Bills'])
-      })
-      .catch(error => console.error(error))
+        .bills()
+        .update({ data: JSON.stringify(bill), selector: this.billId })
+        .then(() => {
+          this.onNavigate(ROUTES_PATH['Bills'])
+        })
+        .catch(error => console.error(error))
     }
   }
 }
