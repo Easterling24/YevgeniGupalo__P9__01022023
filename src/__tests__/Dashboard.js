@@ -247,7 +247,7 @@ describe("Given i am a user connected as Admin", () => {
 
       const getSpy = jest.spyOn(mockStore, "get")
       const bills = await mockStore.get()
-
+      expect(getSpy).toHaveBeenCalledTimes(1);
       expect(bills.data.length).toBe(4)
     })
 
